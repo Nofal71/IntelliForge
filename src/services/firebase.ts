@@ -88,6 +88,17 @@ export const updateChatTitle = async (uid: string, chatId: string, title: string
 };
 
 
+export const updateKnowladgeBase = async (uid: string, chatId: string, knowledgeBaseIds: string[] | Number[]) => {
+  if (!uid || !chatId || !knowledgeBaseIds) throw new Error('Invalid user ID, chat ID, or knowledge Base');
+  try {
+    await setDoc(doc(db, 'users', uid, 'chats', chatId), { knowledgeBaseIds }, { merge: true });
+  } catch (error) {
+    console.error('Error updating chat title:', error);
+    throw error;
+  }
+};
+
+
 export const saveRAGProjectToFirebase = async (userId: string, name: string): Promise<{ ragProjectId: string; name: string }> => {
   if (!userId || !name) throw new Error('User ID and name required');
   const ragProjectId = nanoid();
@@ -129,7 +140,7 @@ export const saveDocumentMetadataToFirestore = async (userId: string, ragProject
 };
 
 
-export async function generateEmbedding(text: string) {
+export async function generateEmbedding(text: string): Promise<number[]> {
   const response = await fetch(API_URL, {
     method: "POST",
     headers: {
@@ -139,8 +150,24 @@ export async function generateEmbedding(text: string) {
     body: JSON.stringify({ inputs: text }),
   });
 
-  return await response.json()
+  if (!response.ok) {
+    throw new Error(`Failed to generate embedding: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  if (Array.isArray(data)) {
+    if (Array.isArray(data[0])) return data[0];
+    return data;
+  }
+
+  if (data.embedding && Array.isArray(data.embedding)) {
+    return data.embedding;
+  }
+
+  throw new Error("Unknown embedding format received");
 }
+
 
 export const storeChunks = async (documentId: string, chunks: string[]): Promise<number> => {
   if (!documentId || !chunks.length) throw new Error('Document ID and chunks required');
@@ -178,6 +205,10 @@ export const getRelevantChunks = async (ragProjectId: string, queryText: string,
     const chunksSnapshot = await getDocs(chunksCollection);
     chunksSnapshot.forEach(chunkDoc => {
       const chunk = chunkDoc.data() as Chunk;
+      if (!chunk.embedding || chunk.embedding.length !== queryEmbedding.length) {
+        console.warn('Skipping invalid chunk:', chunkDoc.id);
+        return;
+      }
       const similarity = cosineSimilarity(queryEmbedding, chunk.embedding);
       chunks.push({ text: chunk.text, similarity });
     });

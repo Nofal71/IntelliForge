@@ -12,6 +12,7 @@ export interface Chat {
   model: string;
   systemPrompt: string;
   messages: Message[];
+  knowledgeBaseIds: string[]
 }
 
 export interface UserData {

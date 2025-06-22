@@ -41,9 +41,9 @@ export const sendChatMessage = async (
       },
       body: JSON.stringify({
         model,
-        messages: systemPrompt
-          ? [{ role: 'system', content: systemPrompt }, ...messages]
-          : messages,
+        messages: [{ role: 'system', content: `
+          Your primary role is to assist with the user's information needs. **But first, you MUST establish a clear 'TITLE:' for the current chat context
+          /n${systemPrompt || ''}` }, ...messages],
         stream: true,
       }),
     });
@@ -87,7 +87,6 @@ export const sendChatMessage = async (
         }
       }
     }
-
     return fullResponse;
   } catch (error) {
     console.error('Error streaming chat message:', error);

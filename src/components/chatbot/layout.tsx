@@ -186,7 +186,7 @@ const Layout: React.FC = () => {
     const systemPrompt = userData.systemPrompts?.[model]?.prompt || '';
     const id = nanoid();
     const newChat = {
-      title: `Chat ${chats.length + 1}`,
+      title: `New Conservation`,
       model,
       systemPrompt,
       messages: [],
@@ -194,7 +194,8 @@ const Layout: React.FC = () => {
     };
     try {
       const savePayload = createChat(newChat);
-      await saveChat(user.uid, savePayload);
+      const chat = {...savePayload , knowledgeBaseIds: []}
+      await saveChat(user.uid, chat);
       selectChat(savePayload.id);
       navigate(`/chats/${savePayload.id}`);
       if (isMobile) setOpenDrawer(false);
@@ -325,63 +326,80 @@ const Layout: React.FC = () => {
                   exit={{ opacity: 0, x: -10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <ListItemButton
+                    <ListItemButton
                     onClick={() => {
                       selectChat(chat.id);
                       navigate(`/chats/${chat.id}`);
-                      if (isMobile) setOpenDrawer(false);
-                    }}
-                    selected={chat.id === activeChatId}
-                    sx={{
-                      borderRadius: '8px',
-                      mb: 0.5,
-                      py: 1,
-                      px: 2,
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      '&.Mui-selected': {
+                        if (isMobile) setOpenDrawer(false);
+                      }}
+                      selected={chat.id === activeChatId}
+                      sx={{
+                        borderRadius: '8px',
+                        mb: 0.5,
+                        py: 1,
+                        px: 2,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        '&.Mui-selected': {
                         bgcolor: '#e3f2fd',
                         '&:hover': { bgcolor: '#dbeafe' },
-                      },
-                      '&:hover': { bgcolor: '#f9fafb' },
-                    }}
-                  >
-                    <ListItemText
-                      primary={chat.title}
-                      sx={{
-                        color: '#374151',
-                        '& .MuiTypography-root': { fontSize: '0.95rem', fontWeight: 500 },
+                        },
+                        '&:hover': { bgcolor: '#f9fafb' },
+                        minHeight: 40,
                       }}
-                    />
+                      >
+                      <ListItemText
+                        primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Typography
+                          sx={{
+                            color: '#374151',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: 150,
+                            fontSize: '0.85rem',
+                            fontWeight: 500,
+                            lineHeight: 1.2,
+                            display: 'inline-block',
+                            verticalAlign: 'middle',
+                          }}
+                          title={chat.title}
+                          >
+                          {chat.title}
+                          </Typography>
+                        </Box>
+                        }
+                      />
                     <Box sx={{ display: 'flex', gap: 1 }}>
                       <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-                        <IconButton
-                          size="small"
-                          onClick={e => {
-                            e.stopPropagation();
-                            setChatToEdit(chat.id);
-                            setOpenEditDialog(true);
-                          }}
-                          sx={{ color: '#6b7280', '&:hover': { color: '#2563eb' } }}
-                        >
-                          <Edit fontSize="small" />
-                        </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={e => {
+                        e.stopPropagation();
+                        setChatToEdit(chat.id);
+                        setOpenEditDialog(true);
+                        }}
+                        sx={{ color: '#6b7280', '&:hover': { color: '#2563eb' } }}
+                      >
+                        <Edit fontSize="small" />
+                      </IconButton>
                       </motion.div>
                       <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-                        <IconButton
-                          size="small"
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleOpenDeleteDialog(chat.id);
-                          }}
-                          sx={{ color: '#6b7280', '&:hover': { color: '#ef4444' } }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={e => {
+                        e.stopPropagation();
+                        handleOpenDeleteDialog(chat.id);
+                        }}
+                        sx={{ color: '#6b7280', '&:hover': { color: '#ef4444' } }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
                       </motion.div>
                     </Box>
-                  </ListItemButton>
+                    </ListItemButton>
                 </motion.div>
               ))}
             </AnimatePresence>

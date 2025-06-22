@@ -4,17 +4,22 @@ import type { Chat, Message } from '../../types';
 interface ChatbotState {
   chats: Chat[];
   activeChatId: string | null;
+  trigger: any
 }
 
 const initialState: ChatbotState = {
   chats: [],
   activeChatId: null,
+  trigger: null
 };
 
 const chatbotSlice = createSlice({
   name: 'chatbot',
   initialState,
   reducers: {
+    triggerChat: (state: ChatbotState) => {
+      state.trigger = Math.random()
+    },
     createChat: (
       state,
       action: PayloadAction<{ title?: string; model?: string; systemPrompt?: string, messages?: Message[], id: any }>
@@ -22,10 +27,11 @@ const chatbotSlice = createSlice({
       const chatId = action.payload.id
       const newChat: Chat = {
         id: chatId,
-        title: action.payload.title || `Chat ${state.chats.length + 1}`,
+        title: action.payload.title || `New Conservation`,
         messages: action.payload.messages || [],
         model: action.payload.model || 'default',
         systemPrompt: action.payload.systemPrompt || '',
+        knowledgeBaseIds: []
       };
       if (!state.chats.some(c => c.id === chatId)) {
         state.chats.push(newChat);
@@ -145,6 +151,7 @@ export const {
   selectChat,
   updateChat,
   deleteChat,
-  updateBotMessage
+  triggerChat,
+  updateBotMessage,
 } = chatbotSlice.actions;
 export default chatbotSlice.reducer;

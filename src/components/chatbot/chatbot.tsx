@@ -19,7 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useChatbot } from '../../redux/useChatbot';
 import { sendChatMessage, fetchModels, type Model } from '../../services/openrouter';
-import { updateChat, getChat } from '../../services/firebase';
+import { updateChat, getChat, updateKnowladgeBase } from '../../services/firebase';
 import { useAuth } from '../../context/Authcontext';
 import type { SelectChangeEvent, SxProps, Theme } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
@@ -36,7 +36,7 @@ interface RAGProject {
 
 const Chats: React.FC = () => {
   const { chatId } = useParams<{ chatId: string }>();
-  const [input, setInput] = useState('');
+  const userInputRef = useRef<HTMLInputElement>(null);
   const [isSending, setIsSending] = useState<boolean>(false);
   const { activeChat, createMessage, createBotMessage, selectChat, updateChat: updateChatState, updateBotMessage } = useChatbot();
   const { user, userData } = useAuth();
@@ -59,6 +59,7 @@ const Chats: React.FC = () => {
       return;
     }
     let isMounted = true;
+
     const loadProjectsAndChunks = async () => {
       const db = getFirestore();
       const projectsSnapshot = await getDocs(firestoreQuery(collection(db, 'ragProjects'), where('userId', '==', user.uid)));
@@ -68,10 +69,20 @@ const Chats: React.FC = () => {
       }));
       if (isMounted) {
         setRAGProjects(projectList);
-        setSelectedItems([...projectList.flatMap(e => e.ragProjectId)])
       }
     };
-    
+
+    const loadKnowladgeBases = async () => {
+      const chat = await getChat(user.uid, chatId);
+      setSelectedItems(
+        Array.isArray(chat?.knowledgeBaseIds)
+          ? chat.knowledgeBaseIds.map((e: any) =>
+            typeof e === 'string' ? e : e.ragProjectId
+          )
+          : []
+      )
+    };
+
     const loadChat = async () => {
       if (!activeChat || activeChat.id !== chatId) {
         setIsLoadingChat(true);
@@ -92,7 +103,7 @@ const Chats: React.FC = () => {
         }
       }
     };
-    
+
     const loadModels = async () => {
       if (userData?.apiKey) {
         setIsLoadingModels(true);
@@ -114,19 +125,31 @@ const Chats: React.FC = () => {
         if (isMounted) setError('API key not set. Configure in Settings.');
       }
     };
-    
+
     loadChat();
     loadModels();
     loadProjectsAndChunks();
+    loadKnowladgeBases()
     setKey(decryptAES256(userData?.apiKey))
-    
+    if (userInputRef.current) {
+      userInputRef.current.focus()
+    }
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [chatId]);
 
-  const handleSelectChange = (event: SelectChangeEvent<string[]>) => {
-    setSelectedItems(event.target.value as string[]);
+  const handleSelectChange = async (event: SelectChangeEvent<string[]>) => {
+    if (!user || !chatId || !setSelectedItems) throw new Error('Invalid user ID, chat ID, or knowledge Base');
+    try {
+      setSelectedItems(event.target.value as string[]);
+      await updateKnowladgeBase(user?.uid, chatId, event.target.value as string[])
+      if (userInputRef.current) {
+        userInputRef.current.focus()
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -144,18 +167,36 @@ const Chats: React.FC = () => {
   }, [activeChat?.model, userData?.defaultModel, models]);
 
   useEffect(() => {
+    let lastScroll = Date.now();
+    let timeout: NodeJS.Timeout | null = null;
+
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const now = Date.now();
+      if (now - lastScroll > 100) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        lastScroll = now;
+      } else {
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      }
     }
-  }, [chatId, activeChat?.messages]);
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [activeChat?.messages]);
 
   const handleSend = async () => {
-    if (!input.trim() || !activeChat || !user?.uid || !userData?.apiKey || !chatId || !selectedModel) {
+    if (!userInputRef.current || !activeChat || !user?.uid || !userData?.apiKey || !chatId || !selectedModel) {
       setError('Please select a model and ensure API key is set.');
       return;
     }
-    const userInput = input;
-    setInput('');
+    const userInput = userInputRef.current.value;
+    userInputRef.current.value = ''
     setIsSending(true);
     setError('');
     try {
@@ -170,8 +211,9 @@ const Chats: React.FC = () => {
       ];
       const botMessageId = nanoid();
       let botMessageContent = '';
+      let cleanbotmessage = ''
       createBotMessage(activeChat.id, botMessageContent, botMessageId);
-
+      let title: null | string = null
       const selectedProjects = selectedItems.filter(item => ragProjects.some(p => p.ragProjectId === item));
       if (selectedProjects.length) {
         await ragService.generateRAGResponse(
@@ -181,20 +223,42 @@ const Chats: React.FC = () => {
           selectedModel,
           user.uid,
           (chunk) => {
+            const content = botMessageContent || '';
+            const firstLineBreak = content.indexOf('\n');
+            if (firstLineBreak !== -1) {
+              let checkTitle = content.slice(0, firstLineBreak) || null;
+              if (checkTitle) {
+                title = checkTitle.replace(/^TITLE:\s*/i, '')
+              }
+            }
             botMessageContent += chunk;
-            updateBotMessage(activeChat.id, botMessageContent, botMessageId);
-            if (messagesEndRef.current) {
-              messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (firstLineBreak) {
+              updateBotMessage(activeChat.id, botMessageContent.slice(firstLineBreak), botMessageId)
+              cleanbotmessage = botMessageContent.slice(firstLineBreak)
+            } else {
+              updateBotMessage(activeChat.id, botMessageContent, botMessageId);
+              cleanbotmessage = botMessageContent
             }
           }
         );
       } else {
         const systemPrompt = activeChat.systemPrompt || userData?.systemPrompts?.[selectedModel]?.prompt || '';
         await sendChatMessage(decryptKey, selectedModel, messages, systemPrompt, (chunk) => {
+          const content = botMessageContent || '';
+          const firstLineBreak = content.indexOf('\n');
+          if (firstLineBreak !== -1) {
+            let checkTitle = content.slice(0, firstLineBreak) || null;
+            if (checkTitle) {
+                title = checkTitle.replace(/^\s*[\*\-_\s]*(title|TITLE|Title)[\*\-_\s:]*\s*/i, '').replace(/^[\*\-_\s]+|[\*\-_\s]+$/g, '')
+            }
+          }
           botMessageContent += chunk;
-          updateBotMessage(activeChat.id, botMessageContent, botMessageId);
-          if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (firstLineBreak) {
+            updateBotMessage(activeChat.id, botMessageContent.slice(firstLineBreak), botMessageId)
+            cleanbotmessage = botMessageContent.slice(firstLineBreak)
+          } else {
+            updateBotMessage(activeChat.id, botMessageContent, botMessageId);
+            cleanbotmessage = botMessageContent
           }
         });
       }
@@ -211,12 +275,12 @@ const Chats: React.FC = () => {
         {
           id: botMessageId,
           chatId: activeChat.id,
-          content: botMessageContent,
+          content: cleanbotmessage,
           type: 'bot' as const,
           timestamp: new Date().toISOString(),
         },
       ];
-      const updatedChat = { ...activeChat, messages: updatedMessages, model: selectedModel };
+      const updatedChat = title ? { ...activeChat, messages: updatedMessages, model: selectedModel, knowledgeBaseIds: selectedProjects, title } : { ...activeChat, messages: updatedMessages, model: selectedModel, knowledgeBaseIds: selectedProjects };
       await updateChat(user.uid, chatId, updatedChat);
       updateChatState(updatedChat);
     } catch (error) {
@@ -224,6 +288,9 @@ const Chats: React.FC = () => {
       setError('Failed to send message. Your API key may be invalid or unpaid. Please check your API key in Settings.');
     } finally {
       setIsSending(false);
+      if (userInputRef.current) {
+        userInputRef.current.focus()
+      }
     }
   };
 
@@ -243,6 +310,9 @@ const Chats: React.FC = () => {
       setError('Failed to save model');
     } finally {
       setIsSavingModel(false);
+      if (userInputRef.current) {
+        userInputRef.current.focus()
+      }
     }
   };
 
@@ -301,6 +371,7 @@ const Chats: React.FC = () => {
               py: 2,
               display: 'flex',
               alignItems: 'center',
+              justifyContent: 'space-between',
               mb: 2,
               gap: 1.5,
               backgroundColor: 'white',
@@ -308,12 +379,23 @@ const Chats: React.FC = () => {
             }}
           >
             <Typography
-              variant="h5"
-              sx={{ fontWeight: 600, color: '#1a202c', flexGrow: 1, letterSpacing: '-0.02em' }}
+              variant="h6"
+              noWrap
+              sx={{
+                fontWeight: 600,
+                color: '#1a202c',
+                flexGrow: 1,
+                letterSpacing: '-0.02em',
+                fontSize: '1.05rem',
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                maxWidth: 350,
+              }}
             >
               {activeChat.title}
             </Typography>
-            <FormControl sx={{ minWidth: 200 }}>
+            <FormControl>
               <Select
                 multiple
                 value={selectedItems}
@@ -390,7 +472,7 @@ const Chats: React.FC = () => {
                 )}
               </Select>
             </FormControl>
-            <FormControl sx={{ minWidth: 140 }}>
+            <FormControl>
               <Select
                 size='small'
                 value={selectedModel}
@@ -766,10 +848,9 @@ const Chats: React.FC = () => {
               <TextField
                 fullWidth
                 multiline
+                inputRef={userInputRef}
                 maxRows={4}
                 size="small"
-                value={input}
-                onChange={e => setInput(e.target.value)}
                 onKeyDown={e => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -790,7 +871,7 @@ const Chats: React.FC = () => {
                 color="primary"
                 type="button"
                 onClick={handleSend}
-                disabled={isSending || !input.trim() || !selectedModel}
+                disabled={isSending || !userInputRef.current || !selectedModel}
                 sx={{
                   ...buttonSx,
                   bgcolor: '#2563eb',
