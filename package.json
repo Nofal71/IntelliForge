@@ -1,5 +1,5 @@
 {
-  "name": "teamrouter",
+  "name": "IntelliForge",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -34,7 +34,9 @@
   "devDependencies": {
     "@eslint/js": "^9.25.0",
     "@types/crypto-js": "^4.2.2",
-    "@types/react": "^19.1.2",
+    "@types/estree": "^1.0.8",
+    "@types/node": "^24.1.0",
+    "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.2",
     "@types/react-redux": "^7.1.34",
     "@types/react-router-dom": "^5.3.3",

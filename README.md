@@ -1,5 +1,5 @@
 
-TeamRouter is a secure, robust proxy interface that enables your team to collectively use OpenRouter's large language models (LLMs) while maintaining individual user accountability and comprehensive chat history logging.
+IntelliForge is a secure, robust proxy interface that enables your team to collectively use OpenRouter's large language models (LLMs) while maintaining individual user accountability and comprehensive chat history logging.
 
 Features
 User & API Key Management:

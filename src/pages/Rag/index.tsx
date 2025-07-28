@@ -131,7 +131,7 @@ const RAGInterface: React.FC = () => {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f7fa', py: 8, px: { xs: 3, sm: 6 } }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f7fa', py: { xs: 4, sm: 8 }, px: { xs: 2, sm: 6 } }}>
       {error && (
         <Snackbar
           open={!!error}
@@ -144,6 +144,7 @@ const RAGInterface: React.FC = () => {
               bgcolor: '#fee2e2',
               color: '#b91c1c',
               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              fontSize: { xs: '0.85rem', sm: '0.9rem' },
             }}
           >
             {error || 'An unexpected error occurred.'}
@@ -153,23 +154,31 @@ const RAGInterface: React.FC = () => {
       {/* Introductory Section */}
       <Paper
         sx={{
-          maxWidth: 900,
+          maxWidth: { xs: '100%', sm: 900 },
           mx: 'auto',
-          p: 4,
-          mb: 6,
+          p: { xs: 2, sm: 4 },
+          mb: { xs: 4, sm: 6 },
           borderRadius: '16px',
           boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
           bgcolor: '#ffffff',
           border: '1px solid #e2e8f0',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <Typography variant="h4" sx={{ color: '#111827', fontWeight: 700, mr: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 3 } }}>
+          <Typography
+            variant="h4"
+            sx={{
+              color: '#111827',
+              fontWeight: 700,
+              mr: 1,
+              fontSize: { xs: '1.5rem', sm: '2rem' }
+            }}
+          >
             Welcome to Your Knowledge Base
           </Typography>
           <Tooltip title="Learn how to manage your Knowledge Bases for personalized AI interactions." arrow>
             <IconButton size="small" sx={{ color: '#6b7280' }}>
-              <InfoOutlined fontSize="small" />
+              <InfoOutlined fontSize="small" sx={{ fontSize: { xs: 16, sm: 20 } }} />
             </IconButton>
           </Tooltip>
         </Box>
@@ -177,7 +186,7 @@ const RAGInterface: React.FC = () => {
           variant="body1"
           sx={{
             color: '#374151',
-            fontSize: '1.1rem',
+            fontSize: { xs: '0.95rem', sm: '1.1rem' },
             lineHeight: 1.7,
             mb: 2,
           }}
@@ -188,7 +197,7 @@ const RAGInterface: React.FC = () => {
           variant="body2"
           sx={{
             color: '#6b7280',
-            fontSize: '0.95rem',
+            fontSize: { xs: '0.85rem', sm: '0.95rem' },
             fontStyle: 'italic',
           }}
         >
@@ -196,39 +205,49 @@ const RAGInterface: React.FC = () => {
         </Typography>
       </Paper>
 
-      <Box sx={{ maxWidth: 900, mx: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <Box sx={{ maxWidth: { xs: '100%', sm: 900 }, mx: 'auto', display: 'flex', flexDirection: 'column', gap: { xs: 3, sm: 4 } }}>
         {/* Create Knowledge Base */}
         <Paper
           sx={{
-            p: 4,
+            p: { xs: 2, sm: 4 },
             borderRadius: '16px',
             boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
             bgcolor: '#ffffff',
             border: '1px solid #e2e8f0',
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h5" sx={{ color: '#111827', fontWeight: 600, mr: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 3 } }}>
+            <Typography
+              variant="h5"
+              sx={{
+                color: '#111827',
+                fontWeight: 600,
+                mr: 1,
+                fontSize: { xs: '1.25rem', sm: '1.5rem' }
+              }}
+            >
               Create Knowledge Base
             </Typography>
             <Tooltip title="Create a new Knowledge Base to organize your documents." arrow>
               <IconButton size="small" sx={{ color: '#6b7280' }}>
-                <InfoOutlined fontSize="small" />
+                <InfoOutlined fontSize="small" sx={{ fontSize: { xs: 16, sm: 20 } }} />
               </IconButton>
             </Tooltip>
           </Box>
           <TextField
             label="Knowledge Base Name"
             value={projectName}
-            onChange={e => setProjectName(e.target.value)}
+            onChange={(e) => setProjectName(e.target.value)}
             fullWidth
             sx={{
-              mb: 3,
+              mb: { xs: 2, sm: 3 },
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px',
                 '& fieldset': { borderColor: '#d1d5db' },
                 '&:hover fieldset': { borderColor: '#3b82f6' },
               },
+              '& .MuiInputLabel-root': { fontSize: { xs: '0.85rem', sm: '1rem' } },
+              '& .MuiInputBase-input': { fontSize: { xs: '0.85rem', sm: '1rem' } },
             }}
           />
           <Button
@@ -240,8 +259,10 @@ const RAGInterface: React.FC = () => {
               borderRadius: '8px',
               fontWeight: 600,
               textTransform: 'none',
-              px: 3,
-              py: 1.5,
+              px: { xs: 2, sm: 3 },
+              py: { xs: 1, sm: 1.5 },
+              fontSize: { xs: '0.85rem', sm: '0.9rem' },
+              width: { xs: '100%', sm: 'auto' },
               '&:hover': { bgcolor: '#2563eb', transform: 'translateY(-1px)' },
               '&:disabled': { bgcolor: '#e5e7eb', color: '#9ca3af' },
             }}
@@ -253,20 +274,28 @@ const RAGInterface: React.FC = () => {
         {/* Upload Documents */}
         <Paper
           sx={{
-            p: 4,
+            p: { xs: 2, sm: 4 },
             borderRadius: '16px',
             boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
             bgcolor: '#ffffff',
             border: '1px solid #e2e8f0',
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h5" sx={{ color: '#111827', fontWeight: 600, mr: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 3 } }}>
+            <Typography
+              variant="h5"
+              sx={{
+                color: '#111827',
+                fontWeight: 600,
+                mr: 1,
+                fontSize: { xs: '1.25rem', sm: '1.5rem' }
+              }}
+            >
               Upload Documents
             </Typography>
             <Tooltip title="Upload one or more .txt files to your selected Knowledge Base." arrow>
               <IconButton size="small" sx={{ color: '#6b7280' }}>
-                <InfoOutlined fontSize="small" />
+                <InfoOutlined fontSize="small" sx={{ fontSize: { xs: 16, sm: 20 } }} />
               </IconButton>
             </Tooltip>
           </Box>
@@ -274,15 +303,17 @@ const RAGInterface: React.FC = () => {
             select
             label="Select Knowledge Base"
             value={selectedProject}
-            onChange={e => setSelectedProject(e.target.value)}
+            onChange={(e) => setSelectedProject(e.target.value)}
             fullWidth
             sx={{
-              mb: 3,
+              mb: { xs: 2, sm: 3 },
               '& .MuiOutlinedInput-root': {
                 borderRadius: '8px',
                 '& fieldset': { borderColor: '#d1d5db' },
                 '&:hover fieldset': { borderColor: '#3b82f6' },
               },
+              '& .MuiInputLabel-root': { fontSize: { xs: '0.85rem', sm: '1rem' } },
+              '& .MuiInputBase-input': { fontSize: { xs: '0.85rem', sm: '1rem' } },
             }}
             SelectProps={{
               native: false,
@@ -292,19 +323,28 @@ const RAGInterface: React.FC = () => {
             <MenuItem value="" disabled>
               Select a Knowledge Base
             </MenuItem>
-            {ragProjects.map(project => (
-              <MenuItem key={project.ragProjectId} value={project.ragProjectId}>
+            {ragProjects.map((project) => (
+              <MenuItem
+                key={project.ragProjectId}
+                value={project.ragProjectId}
+                sx={{ fontSize: { xs: '0.85rem', sm: '1rem' } }}
+              >
                 {project.name}
               </MenuItem>
             ))}
           </TextField>
-          <input
-            type="file"
-            accept=".txt,.pdf"
-            multiple
-            onChange={e => setFiles(e.target.files ? Array.from(e.target.files) : [])}
-            style={{ marginBottom: '24px', display: 'block' }}
-          />
+          <Box sx={{ mb: { xs: 2, sm: 3 } }}>
+            <input
+              type="file"
+              accept=".txt,.pdf"
+              multiple
+              onChange={(e) => setFiles(e.target.files ? Array.from(e.target.files) : [])}
+              style={{
+                display: 'block',
+                width: '100%',
+              }}
+            />
+          </Box>
           <Button
             variant="contained"
             onClick={handleUpload}
@@ -314,8 +354,10 @@ const RAGInterface: React.FC = () => {
               borderRadius: '8px',
               fontWeight: 600,
               textTransform: 'none',
-              px: 3,
-              py: 1.5,
+              px: { xs: 2, sm: 3 },
+              py: { xs: 1, sm: 1.5 },
+              fontSize: { xs: '0.85rem', sm: '0.9rem' },
+              width: { xs: '100%', sm: 'auto' },
               '&:hover': { bgcolor: '#2563eb', transform: 'translateY(-1px)' },
               '&:disabled': { bgcolor: '#e5e7eb', color: '#9ca3af' },
             }}
@@ -327,57 +369,78 @@ const RAGInterface: React.FC = () => {
         {/* Knowledge Base List */}
         <Paper
           sx={{
-            p: 4,
+            p: { xs: 2, sm: 4 },
             borderRadius: '16px',
             boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
             bgcolor: '#ffffff',
             border: '1px solid #e2e8f0',
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h5" sx={{ color: '#111827', fontWeight: 600, mr: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 3 } }}>
+            <Typography
+              variant="h5"
+              sx={{
+                color: '#111827',
+                fontWeight: 600,
+                mr: 1,
+                fontSize: { xs: '1.25rem', sm: '1.5rem' }
+              }}
+            >
               Your Knowledge Bases
             </Typography>
             <Tooltip title="View and manage your Knowledge Bases." arrow>
               <IconButton size="small" sx={{ color: '#6b7280' }}>
-                <InfoOutlined fontSize="small" />
+                <InfoOutlined fontSize="small" sx={{ fontSize: { xs: 16, sm: 20 } }} />
               </IconButton>
             </Tooltip>
           </Box>
           {ragProjects.length === 0 ? (
-            <Typography variant="body1" sx={{ color: '#6b7280', fontStyle: 'italic' }}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: '#6b7280',
+                fontStyle: 'italic',
+                fontSize: { xs: '0.9rem', sm: '1rem' }
+              }}
+            >
               No Knowledge Bases created yet. Create one above!
             </Typography>
           ) : (
-            <List sx={{ bgcolor: '#f9fafb', borderRadius: '8px', p: 1 }}>
-              {ragProjects.map(project => (
+            <List sx={{ bgcolor: '#f9fafb', borderRadius: '8px', p: { xs: 0.5, sm: 1 } }}>
+              {ragProjects.map((project) => (
                 <ListItem
                   key={project.ragProjectId}
                   sx={{
                     borderBottom: '1px solid #e2e8f0',
-                    py: 2,
+                    py: { xs: 1.5, sm: 2 },
                     '&:last-child': { borderBottom: 'none' },
                     '&:hover': { bgcolor: '#f1f5f9' },
                   }}
                 >
                   <ListItemText
                     primary={project.name}
-                    primaryTypographyProps={{ fontWeight: 500, color: '#111827' }}
+                    primaryTypographyProps={{
+                      fontWeight: 500,
+                      color: '#111827',
+                      fontSize: { xs: '0.9rem', sm: '1rem' }
+                    }}
                   />
                   <ListItemSecondaryAction>
                     <Tooltip title="Delete Knowledge Base" arrow>
                       <IconButton
                         edge="end"
                         onClick={() => handleDelete(project.ragProjectId)}
-                        sx={{ color: '#ef4444', '&:hover': { bgcolor: '#fee2e2' } }}
+                        sx={{
+                          color: '#ef4444',
+                          '&:hover': { bgcolor: '#fee2e2' },
+                          p: { xs: 0.5, sm: 1 },
+                        }}
                       >
-                        {
-                          deletingProject && deletingProject === project.ragProjectId ? (
-                            <CircularProgress size={30} />
-                          ) : (
-                            <Delete />
-                          )
-                        }
+                        {deletingProject && deletingProject === project.ragProjectId ? (
+                          <CircularProgress size={24} sx={{ color: '#ef4444' }} />
+                        ) : (
+                          <Delete sx={{ fontSize: { xs: 18, sm: 24 } }} />
+                        )}
                       </IconButton>
                     </Tooltip>
                   </ListItemSecondaryAction>
@@ -388,8 +451,8 @@ const RAGInterface: React.FC = () => {
         </Paper>
       </Box>
       {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress size={28} sx={{ color: '#3b82f6' }} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: { xs: 3, sm: 4 } }}>
+          <CircularProgress size={24} sx={{ color: '#3b82f6' }} />
         </Box>
       )}
     </Box>

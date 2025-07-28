@@ -291,7 +291,7 @@ const Layout: React.FC = () => {
             variant="h6"
             sx={{ fontWeight: 700, color: '#1a202c', letterSpacing: '-0.02em' }}
           >
-            TeamRouter
+            IntelliForge
           </Typography>
         </Box>
         <Box sx={{ px: 2, py: 1 }}>

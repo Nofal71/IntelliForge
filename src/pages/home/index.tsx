@@ -78,7 +78,7 @@ const Home: React.FC = () => {
     <Container maxWidth="md">
       <WelcomePaper elevation={3}>
         <Typography variant="h3" fontWeight="bold" gutterBottom>
-          Welcome to Team Router, {userData?.name || 'User'}!
+          Welcome to IntelliForge, {userData?.name || 'User'}!
         </Typography>
         <Typography variant="subtitle1" color="text.secondary" paragraph>
           Your hub for seamless collaboration and AI-powered workflows
@@ -212,7 +212,7 @@ const Home: React.FC = () => {
 
       <FeaturePaper elevation={1}>
         <Typography variant="h5" fontWeight={700} gutterBottom>
-          Why use Team Router?
+          Why use IntelliForge?
         </Typography>
         <List>
           <ListItem>

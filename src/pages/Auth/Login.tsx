@@ -99,7 +99,7 @@ const Login: React.FC = () => {
             align="center"
             sx={{ fontWeight: 700, color: 'text.primary', mb: 1 }}
           >
-            TeamRouter
+            IntelliForge
           </Typography>
           <Typography
             variant="body2"

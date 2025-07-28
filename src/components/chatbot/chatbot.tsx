@@ -13,6 +13,7 @@ import {
   IconButton,
   Chip,
   Snackbar,
+  Button,
 } from '@mui/material';
 import { Send as SendIcon, SmartToy, Person, Check, ContentCopy } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -249,7 +250,7 @@ const Chats: React.FC = () => {
           if (firstLineBreak !== -1) {
             let checkTitle = content.slice(0, firstLineBreak) || null;
             if (checkTitle) {
-                title = checkTitle.replace(/^\s*[\*\-_\s]*(title|TITLE|Title)[\*\-_\s:]*\s*/i, '').replace(/^[\*\-_\s]+|[\*\-_\s]+$/g, '')
+              title = checkTitle.replace(/^\s*[\*\-_\s]*(title|TITLE|Title)[\*\-_\s:]*\s*/i, '').replace(/^[\*\-_\s]+|[\*\-_\s]+$/g, '')
             }
           }
           botMessageContent += chunk;
@@ -337,45 +338,44 @@ const Chats: React.FC = () => {
   }
 
   return (
-    <Box sx={{ flexGrow: 1, p: 2, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <Box sx={{ flexGrow: 1, p: { xs: 1, sm: 2 }, display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: '#f5f7fa' }}>
       {error && (
-        <div>
-          <Snackbar
-            open={!!error}
-            autoHideDuration={4000}
-            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        <Snackbar
+          open={!!error}
+          autoHideDuration={4000}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            severity="error"
+            sx={{
+              mb: 2,
+              bgcolor: '#fef2f2',
+              color: '#b91c1c',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              borderRadius: '8px',
+            }}
           >
-            <Alert
-              severity="error"
-              sx={{
-                mb: 2,
-                bgcolor: '#fef2f2',
-                color: '#b91c1c',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
-              }}
-            >
-              {error || 'An unexpected error occurred.'}
-            </Alert>
-          </Snackbar>
-        </div>
+            {error || 'An unexpected error occurred.'}
+          </Alert>
+        </Snackbar>
       )}
       {activeChat ? (
         <>
           <Box
             sx={{
-              position: 'absolute',
-              top: '0',
-              right: '0',
-              left: 250,
-              px: 10,
+              position: 'fixed',
+              top: 0,
+              right: 0,
+              left: { xs: 0, sm: 280 },
+              px: { xs: 2, sm: 3 },
               py: 2,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
-              mb: 2,
-              gap: 1.5,
-              backgroundColor: 'white',
-              zIndex: 100
+              justifyContent: { sm: 'space-between', xs: 'flex-end' },
+              bgcolor: '#ffffff',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+              zIndex: 100,
+              borderBottom: '1px solid #e5e7eb',
             }}
           >
             <Typography
@@ -386,139 +386,141 @@ const Chats: React.FC = () => {
                 color: '#1a202c',
                 flexGrow: 1,
                 letterSpacing: '-0.02em',
-                fontSize: '1.05rem',
+                fontSize: { xs: '1rem', sm: '1.1rem' },
                 textOverflow: 'ellipsis',
                 overflow: 'hidden',
                 whiteSpace: 'nowrap',
-                maxWidth: 350,
+                maxWidth: { xs: '150px', sm: '350px' },
+                display: { xs: 'none', sm: 'block' },
               }}
             >
               {activeChat.title}
             </Typography>
-            <FormControl>
-              <Select
-                multiple
-                value={selectedItems}
-                onChange={handleSelectChange}
-                displayEmpty
-                variant="outlined"
-                renderValue={(selected: string[]) => (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, color: selected.length > 0 ? 'black' : 'gray' }}>
-                    {selected.length > 0
-                      ? selected.map((value) => {
-                        const project = ragProjects.find(p => p.ragProjectId === value);
-                        return (
-                          <Chip
-                            key={value}
-                            size='small'
-                            label={project ? project.name : value}
-                            sx={{ bgcolor: project ? '#d6edff' : '#f1e4ff', fontSize: '0.85rem', color: '#1f2937' }}
-                          />
-                        );
-                      })
-                      : 'Select Your Knowledge Base'}
-                  </Box>
-                )}
-                size='small'
-                sx={{
-                  fontSize: '0.9rem',
-                  bgcolor: '#f9fafc',
-                  '& .MuiOutlinedInput-notchedOutline': { borderColor: '#cbd5e0' },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#3b82f6' },
-                }}
-              >
-                <MenuItem value="" disabled>
-                  Select Your Knowlage base
-                </MenuItem>
-                {
-                  ragProjects.length > 0
-                    ? ragProjects.map((project: RAGProject) => (
-                      <MenuItem key={project.ragProjectId} value={project.ragProjectId} sx={{ fontSize: '0.9rem' }}>
-                        Knowladge Base: {project.name}
+            <Box sx={{ display: 'flex', gap: { xs: 1, sm: 1.5 }, alignItems: 'center' }}>
+              <FormControl sx={{ minWidth: { sm: 150 }, maxWidth: { xs: 100, sm: 300 } }}>
+                <Select
+                  multiple
+                  value={selectedItems}
+                  onChange={handleSelectChange}
+                  displayEmpty
+                  variant="outlined"
+                  renderValue={(selected: string[]) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, color: selected.length > 0 ? '#1a202c' : '#6b7280' }}>
+                      {selected.length > 0
+                        ? selected.map((value) => {
+                          const project = ragProjects.find(p => p.ragProjectId === value);
+                          return (
+                            <Chip
+                              key={value}
+                              size="small"
+                              label={project ? project.name : value}
+                              sx={{
+                                bgcolor: project ? '#e3f2fd' : '#f3e8ff',
+                                fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                                color: '#1f2937',
+                              }}
+                            />
+                          );
+                        })
+                        : 'Select Knowledge Base'}
+                    </Box>
+                  )}
+                  size="small"
+                  sx={{
+                    fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                    bgcolor: '#ffffff',
+                    borderRadius: '8px',
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: '#d1d5db' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#2563eb' },
+                  }}
+                >
+                  <MenuItem value="" disabled>
+                    Select Knowledge Base
+                  </MenuItem>
+                  {ragProjects.length > 0 ? (
+                    ragProjects.map((project: RAGProject) => (
+                      <MenuItem key={project.ragProjectId} value={project.ragProjectId} sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
+                        Knowledge Base: {project.name}
                       </MenuItem>
                     ))
-                    : (
-                      null
-                    )
-                }
-                {ragProjects.length === 0 && (
-                  <MenuItem>
-                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                      <Typography sx={{ flexGrow: 1, fontSize: '0.95rem', color: '#6b7280' }}>
-                        No Knowledge Base found.
-                      </Typography>
-                      <Box sx={{ ml: 2 }}>
-                        <button
-                          style={{
-                            background: '#2563eb',
-                            color: '#fff',
-                            border: 'none',
-                            padding: '6px 14px',
-                            fontSize: '0.9rem',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            transition: 'background 0.2s',
-                          }}
-                          onClick={e => {
+                  ) : (
+                    <MenuItem>
+                      <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                        <Typography sx={{ flexGrow: 1, fontSize: { xs: '0.8rem', sm: '0.95rem' }, color: '#6b7280' }}>
+                          No Knowledge Base found.
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          size="small"
+                          onClick={(e) => {
                             e.stopPropagation();
                             navigate('/knowledge-base');
                           }}
+                          sx={{
+                            ...buttonSx,
+                            bgcolor: '#2563eb',
+                            color: '#ffffff',
+                            fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                          }}
                         >
                           Create Knowledge Base
-                        </button>
+                        </Button>
                       </Box>
-                    </Box>
-                  </MenuItem>
-                )}
-              </Select>
-            </FormControl>
-            <FormControl>
-              <Select
-                size='small'
-                value={selectedModel}
-                onChange={e => handleSaveModel(e.target.value)}
-                variant="outlined"
-                disabled={isLoadingModels || isSavingModel}
-                sx={{
-                  fontSize: '0.9rem',
-                  bgcolor: '#f9fafb',
-                  '& .MuiOutlinedInput-notchedOutline': { borderColor: '#d1d5db' },
-                }}
-              >
-                <MenuItem value="" disabled>
-                  Select Model
-                </MenuItem>
-                {isLoadingModels ? (
-                  <MenuItem disabled>
-                    <CircularProgress size={16} sx={{ mr: 1 }} /> Loading models...
-                  </MenuItem>
-                ) : models.length === 0 ? (
-                  <MenuItem disabled>No models available</MenuItem>
-                ) : (
-                  models.map(model => (
-                    <MenuItem key={model.id} value={model.id} sx={{ fontSize: '0.9rem' }}>
-                      {model.name}
                     </MenuItem>
-                  ))
-                )}
-              </Select>
-            </FormControl>
+                  )}
+                </Select>
+              </FormControl>
+              <FormControl sx={{ minWidth: { sm: 120 }, maxWidth: { xs: 100, sm: 300 } }}>
+                <Select
+                  size="small"
+                  value={selectedModel}
+                  onChange={(e) => handleSaveModel(e.target.value)}
+                  variant="outlined"
+                  disabled={isLoadingModels || isSavingModel}
+                  sx={{
+                    fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                    bgcolor: '#ffffff',
+                    borderRadius: '8px',
+                    '& .MuiOutlinedInput-notchedOutline': { borderColor: '#d1d5db' },
+                    '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#2563eb' },
+                  }}
+                >
+                  <MenuItem value="" disabled>
+                    Select Model
+                  </MenuItem>
+                  {isLoadingModels ? (
+                    <MenuItem disabled>
+                      <CircularProgress size={16} sx={{ mr: 1 }} /> Loading models...
+                    </MenuItem>
+                  ) : models.length === 0 ? (
+                    <MenuItem disabled>No models available</MenuItem>
+                  ) : (
+                    models.map((model) => (
+                      <MenuItem key={model.id} value={model.id} sx={{ fontSize: { xs: '0.8rem', sm: '0.9rem' } }}>
+                        {model.name}
+                      </MenuItem>
+                    ))
+                  )}
+                </Select>
+              </FormControl>
+            </Box>
           </Box>
 
           <Box
             sx={{
-              p: 2.5,
+              p: { xs: 1, sm: 2 },
               overflowY: 'auto',
-              mt: 8,
-              mb: 4
+              mt: { xs: 12, sm: 10 },
+              mb: 8,
+              flexGrow: 1,
             }}
           >
             <AnimatePresence initial={false}>
               {activeChat.messages.map((message, index) => {
-                const isCodeMessage = message.type === 'user' && (
-                  message.content.trim().startsWith('```') ||
-                  (message.content.trim().startsWith('`') && message.content.trim().endsWith('`'))
-                );
+                const isCodeMessage =
+                  message.type === 'user' &&
+                  (message.content.trim().startsWith('```') ||
+                    (message.content.trim().startsWith('`') && message.content.trim().endsWith('`')));
                 const codeContent = isCodeMessage
                   ? message.content.trim().replace(/^`{1,3}([^\n]*)\n?([\s\S]*?)`{0,3}$/, '$2')
                   : null;
@@ -538,32 +540,66 @@ const Chats: React.FC = () => {
                   >
                     <Paper
                       sx={{
-                        p: 2,
-                        mb: 4,
-                        maxWidth: '90%',
-                        bgcolor: message.type === 'user' ? '#3b82f6' : '#f9fafb',
-                        color: message.type === 'user' ? '#ffffff' : '#111827',
+                        p: { xs: 1.5, sm: 2 },
+                        maxWidth: { xs: '95%', sm: '80%' },
+                        bgcolor: message.type === 'user' ? '#2563eb' : '#ffffff',
+                        color: message.type === 'user' ? '#ffffff' : '#1a202c',
                         display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: 1.5,
-                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.06)',
-                        border: `1px solid ${message.type === 'user' ? '#3b82f6' : '#e5e7eb'}`,
+                        flexDirection: message.type === 'user' || message.content === '' ? 'row' : 'column',
+                        gap: 1,
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        borderRadius: '12px',
+                        border: `1px solid ${message.type === 'user' ? '#2563eb' : '#e5e7eb'}`,
                         transition: 'transform 0.2s ease',
                         '&:hover': {
                           transform: 'translateY(-2px)',
                         },
                       }}
                     >
-                      {message.type === 'user' ? (
-                        <Person sx={{ fontSize: 20, color: '#ffffff', mt: 0.5 }} />
-                      ) : (
-                        <SmartToy sx={{ fontSize: 20, color: '#6b7280', mt: 0.5 }} />
-                      )}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                        {message.type === 'user' ? (
+                          <Person sx={{ fontSize: { xs: 18, sm: 20 }, color: '#ffffff' }} />
+                        ) : (
+                          <SmartToy sx={{ fontSize: { xs: 18, sm: 20 }, color: '#6b7280' }} />
+                        )}
+                        {
+                          !isSending && message.type !== 'user' && (
+                            <Tooltip title={copied && copied === message.id ? 'Copied!' : 'Copy entire message'} placement="top">
+                              <IconButton
+                                onClick={async () => {
+                                  try {
+                                    await navigator.clipboard.writeText(message.content);
+                                    setCopied(message.id);
+                                    setTimeout(() => setCopied(null), 2000);
+                                  } catch (err) {
+                                    console.error('Failed to copy:', err);
+                                  }
+                                }}
+                                sx={{
+                                  color: message.type === 'user' ? '#ffffff' : '#6b7280',
+                                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                                  p: { xs: 0.5, sm: 0.75 },
+                                  '&:hover': {
+                                    bgcolor: 'rgba(255, 255, 255, 0.2)',
+                                  },
+                                  fontSize: { xs: '0.9rem', sm: '1rem' },
+                                }}
+                              >
+                                {copied && copied === message.id ? (
+                                  <Check sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                                ) : (
+                                  <ContentCopy sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                                )}
+                              </IconButton>
+                            </Tooltip>
+                          )
+                        }
+                      </Box>
                       {message.type === 'user' && !isCodeMessage ? (
                         <Typography
                           variant="body1"
                           sx={{
-                            fontSize: '0.95rem',
+                            fontSize: { xs: '0.85rem', sm: '0.95rem' },
                             lineHeight: 1.6,
                             fontWeight: 400,
                             wordBreak: 'break-word',
@@ -574,36 +610,36 @@ const Chats: React.FC = () => {
                       ) : (
                         <Box
                           sx={{
-                            position: 'relative',
-                            fontSize: '0.95rem',
+                            fontSize: { xs: '0.85rem', sm: '0.95rem' },
                             lineHeight: 1.6,
                             width: '100%',
                             '& p': { margin: '0 0 8px 0' },
                             '& h1, & h2, & h3, & h4, & h5, & h6': {
                               fontWeight: 600,
-                              color: '#1f2937',
+                              color: '#1a202c',
                               mt: 1.5,
                               mb: 1,
                             },
-                            '& h1': { fontSize: '1.25rem' },
-                            '& h2': { fontSize: '1.15rem' },
-                            '& h3': { fontSize: '1.05rem' },
+                            '& h1': { fontSize: { xs: '1.1rem', sm: '1.25rem' } },
+                            '& h2': { fontSize: { xs: '1rem', sm: '1.15rem' } },
+                            '& h3': { fontSize: { xs: '0.9rem', sm: '1.05rem' } },
                             '& code': {
                               bgcolor: '#2d3748',
                               color: '#e2e8f0',
                               px: '6px',
                               py: '2px',
-                              fontSize: '0.9rem',
+                              fontSize: { xs: '0.8rem', sm: '0.9rem' },
                               fontFamily: '"JetBrains Mono", monospace',
                             },
                             '& pre': {
                               bgcolor: '#1f2937',
                               color: '#e2e8f0',
-                              p: 2.5,
+                              p: { xs: 1.5, sm: 2.5 },
                               overflowX: 'auto',
-                              fontSize: '0.9rem',
+                              fontSize: { xs: '0.8rem', sm: '0.9rem' },
                               fontFamily: '"JetBrains Mono", monospace',
-                              my: 2,
+                              my: 1.5,
+                              borderRadius: '8px',
                             },
                             '& a': {
                               color: '#2563eb',
@@ -652,7 +688,7 @@ const Chats: React.FC = () => {
                             '& th': {
                               bgcolor: '#f3f4f6',
                               fontWeight: 600,
-                              color: '#1f2937',
+                              color: '#1a202c',
                             },
                             '& td': {
                               color: '#374151',
@@ -669,46 +705,13 @@ const Chats: React.FC = () => {
                             },
                             '& strong': {
                               fontWeight: 600,
-                              color: '#1f2937',
+                              color: '#1a202c',
                             },
                             '& em': {
                               fontStyle: 'italic',
                             },
                           }}
                         >
-                          <Tooltip title={copied ? 'Copied!' : 'Copy entire message'} placement="top">
-                            <IconButton
-                              onClick={async () => {
-                                try {
-                                  await navigator.clipboard.writeText(message.content);
-                                  setCopied(message.id);
-                                  setTimeout(() => setCopied(null), 2000);
-                                } catch (err) {
-                                  console.error('Failed to copy:', err);
-                                }
-                              }}
-                              sx={{
-                                position: 'absolute',
-                                right: -23,
-                                bottom: -50,
-                                zIndex: 1,
-                                bgcolor: 'rgba(255, 255, 255, 0.1)',
-                                color: 'gray',
-                                '&:hover': {
-                                  bgcolor: 'rgba(255, 255, 255, 0.2)',
-                                },
-                              }}
-                            >
-                              {
-                                !isSending && (
-                                  copied && copied === message.id
-                                    ? <Check sx={{ height: 18, width: 18 }} fontSize="small" />
-                                    : <ContentCopy sx={{ height: 18, width: 18 }} fontSize="small" />
-                                )
-                              }
-                            </IconButton>
-                          </Tooltip>
-
                           {message.content === '' ? (
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1.5 }}>
                               <Box
@@ -773,38 +776,36 @@ const Chats: React.FC = () => {
                                   };
 
                                   return (
-                                    <Box sx={{ position: 'relative', my: 2 }}>
+                                    <Box sx={{ position: 'relative', my: 1.5 }}>
+                                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                                        <Tooltip title={copied ? 'Copied!' : 'Copy code'} placement="top">
+                                          <IconButton
+                                            onClick={handleCopy}
+                                            sx={{
+                                              color: '#e2e8f0',
+                                              bgcolor: 'rgba(255, 255, 255, 0.1)',
+                                              p: { xs: 0.5, sm: 0.75 },
+                                              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' },
+                                              fontSize: { xs: '0.9rem', sm: '1rem' },
+                                            }}
+                                          >
+                                            {copied ? <Check fontSize="small" /> : <ContentCopy fontSize="small" />}
+                                          </IconButton>
+                                        </Tooltip>
+                                      </Box>
                                       <pre
                                         style={{
                                           background: '#1f2937',
                                           color: '#e2e8f0',
-                                          padding: '20px',
+                                          padding: '16px',
                                           overflowX: 'auto',
-                                          fontSize: '0.9rem',
                                           fontFamily: '"JetBrains Mono", monospace',
-                                          margin: '10px',
-                                          boxSizing: 'border-box',
-                                          maxWidth: '95%'
+                                          margin: '8px 0',
+                                          borderRadius: '8px',
                                         }}
                                       >
                                         {children}
                                       </pre>
-                                      <Tooltip title={copied ? 'Copied!' : 'Copy code'} placement="top">
-                                        <IconButton
-                                          onClick={handleCopy}
-                                          sx={{
-                                            position: 'absolute',
-                                            top: 20,
-                                            right: 36,
-                                            color: '#f9fafb',
-                                            bgcolor: 'rgba(255, 255, 255, 0.1)',
-                                            '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)' },
-                                            p: 0.5,
-                                          }}
-                                        >
-                                          {copied ? <Check fontSize="small" /> : <ContentCopy fontSize="small" />}
-                                        </IconButton>
-                                      </Tooltip>
                                     </Box>
                                   );
                                 },
@@ -825,24 +826,25 @@ const Chats: React.FC = () => {
             </AnimatePresence>
             <div ref={messagesEndRef} />
           </Box>
-          <Box sx={{
-            backgroundColor: '#f5f7fa',
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            left: 0,
-            zIndex: 100,
-            display: 'flex',
-            justifyContent: 'center'
-          }}>
+          <Box
+            sx={{
+              position: 'fixed',
+              bottom: 0,
+              right: 0,
+              left: { xs: 0, sm: 280 },
+              bgcolor: '#ffffff',
+              p: { xs: 1, sm: 1.5 },
+              borderTop: '1px solid #e5e7eb',
+              zIndex: 100,
+            }}
+          >
             <Box
               sx={{
-                gap: 1,
-                p: 1.5,
                 display: 'flex',
-                mb: 2,
-                width: '70%',
-                ml: 30
+                gap: { xs: 1, sm: 1.5 },
+                maxWidth: '1200px',
+                mx: 'auto',
+                px: { xs: 1, sm: 2 },
               }}
             >
               <TextField
@@ -851,7 +853,7 @@ const Chats: React.FC = () => {
                 inputRef={userInputRef}
                 maxRows={4}
                 size="small"
-                onKeyDown={e => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
                     handleSend();
@@ -860,11 +862,16 @@ const Chats: React.FC = () => {
                 placeholder="Type your message..."
                 sx={{
                   bgcolor: '#f9fafb',
+                  borderRadius: '8px',
                   '& .MuiOutlinedInput-root': {
                     '& fieldset': { borderColor: '#d1d5db' },
                     '&:hover fieldset': { borderColor: '#2563eb' },
+                    '&.Mui-focused fieldset': { borderColor: '#2563eb' },
                   },
-                  '& .MuiInputBase-input': { fontSize: '0.95rem', color: '#1a202c' },
+                  '& .MuiInputBase-input': {
+                    fontSize: { xs: '0.85rem', sm: '0.95rem' },
+                    color: '#1a202c',
+                  },
                 }}
               />
               <IconButton
@@ -876,26 +883,27 @@ const Chats: React.FC = () => {
                   ...buttonSx,
                   bgcolor: '#2563eb',
                   color: '#ffffff',
-                  boxShadow: '0 2px 8px rgba(37, 99, 235, 0.2)',
+                  borderRadius: '8px',
+                  maxHeight: 50,
+                  mt: 'auto',
+                  p: { xs: 1, sm: 1.2 },
                   '&:disabled': {
                     bgcolor: '#bcd1fa',
                     color: '#e5e7eb',
                   },
-                  ml: 1,
                 }}
               >
-                <SendIcon />
+                <SendIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
               </IconButton>
             </Box>
           </Box>
-
         </>
       ) : (
         <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
             <Typography
               variant="h6"
-              sx={{ fontWeight: 500, color: '#4b5563' }}
+              sx={{ fontWeight: 500, color: '#4b5563', fontSize: { xs: '1rem', sm: '1.25rem' } }}
             >
               Select or create a chat to start
             </Typography>
