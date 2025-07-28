@@ -576,7 +576,6 @@ const Chats: React.FC = () => {
                                   }
                                 }}
                                 sx={{
-                                  color: message.type === 'user' ? '#ffffff' : '#6b7280',
                                   bgcolor: 'rgba(255, 255, 255, 0.1)',
                                   p: { xs: 0.5, sm: 0.75 },
                                   '&:hover': {

@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from 'react-redux';
-import type { RootState } from './store';
 import {
   createChat,
   createMessage,
@@ -11,6 +10,7 @@ import {
   triggerChat
 } from './slices/chatbotSlice';
 import type { Chat, Message } from '../types';
+import type { RootState } from './rootReducer';
 
 export const useChatbot = () => {
   const dispatch = useDispatch();
